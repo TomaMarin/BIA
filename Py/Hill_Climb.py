@@ -59,13 +59,13 @@ print(fitness)
 
 
 fig, ax = plt.subplots()
-l, = ax.plot(x_vals, y_vals)
+l, = ax.plot(x_vals, y_vals, marker="o")
 
 help_x = list()
 help_y = list()
 
 
-# k = plt.scatter(help_x, help_y, lw=2)
+k = ax.plot(x_vals, y_vals)
 
 
 class Index(object):
@@ -174,9 +174,9 @@ bnext.on_clicked(callback.next)
 bprev = Button(axprev, 'Previous')
 bprev.on_clicked(callback.prev)
 
-axstart = plt.axes([0.70, 0.05, 0.1, 0.075])
-axstop = plt.axes([0.81, 0.05, 0.1, 0.075])
-axclear = plt.axes([0.90, 0.05, 0.1, 0.075])
+axstart = plt.axes([0.55, 0.9, 0.1, 0.075])
+axstop = plt.axes([0.45, 0.9, 0.1, 0.075])
+axclear = plt.axes([0.35, 0.9, 0.1, 0.075])
 clearB = Button(axclear, 'Clear')
 clearB.on_clicked(clear)
 startB = Button(axstart, 'Start')
