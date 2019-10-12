@@ -1,4 +1,4 @@
-import numpy
+import numpy as np
 import plotly.offline
 import plotly.graph_objs as go
 import array
@@ -7,6 +7,7 @@ import random
 import math
 import pylab
 import matplotlib.pyplot as plt
+from matplotlib import animation
 from matplotlib.widgets import Button
 
 
@@ -21,7 +22,7 @@ def find_global_min(arrayofx):
 
 
 def generate_normal_distribution_list(best_previous_value, scatter_value, size_of_list):
-    generated_list = (numpy.random.normal(best_previous_value, scatter_value, size_of_list))
+    generated_list = (np.random.normal(best_previous_value, scatter_value, size_of_list))
     # print(generated_list)
     return generated_list
 
@@ -54,7 +55,11 @@ print(fitness)
 #     dict(data=[go.Scatter(x=x_vals, y=y_vals)],
 #          layout=go.Layout(title="fn(x) = (x-3)^2")),
 #     image='jpeg', image_filename='test')
-l, = plt.plot(x_vals, y_vals, lw=2, marker="o")
+# l, = plt.plot(x_vals, y_vals, lw=2, marker="o")
+
+
+fig, ax = plt.subplots()
+l, = ax.plot(x_vals, y_vals)
 
 help_x = list()
 help_y = list()
@@ -110,6 +115,57 @@ class Index(object):
         plt.draw()
 
 
+print(len(y_vals))
+
+
+def animate(ite):
+    print(ite)
+    if ite >= len(y_vals):
+        help_x.clear()
+        help_y.clear()
+        ani.frame_seq = ani.new_frame_seq()
+
+    else:
+        ydata = y_vals[ite]
+        xdata = x_vals[ite]
+        help_x.append(xdata)
+        help_y.append(ydata)
+    l.set_ydata(help_y)
+    l.set_xdata(help_x)
+    return l,
+
+
+def init():  # only required for blitting to give a clean slate.
+    help_x.clear()
+    help_y.clear()
+    ydata = y_vals[0]
+    xdata = x_vals[0]
+    help_x.append(xdata)
+    help_y.append(ydata)
+    l.set_ydata(help_y)
+    l.set_xdata(help_x)
+    return l,
+
+
+def start(self):
+    ani.event_source.start()
+
+
+def stop(self):
+    ani.event_source.stop()
+
+
+def clear(self):
+    help_y.clear()
+    help_x.clear()
+    plt.draw()
+
+
+ani = animation.FuncAnimation(
+    fig, animate, interval=450, repeat=True)
+# pylab.scatter(x_vals, y_vals)
+
+
 callback = Index()
 axprev = plt.axes([0.70, 0.9, 0.1, 0.075])
 axnext = plt.axes([0.81, 0.9, 0.1, 0.075])
@@ -118,7 +174,14 @@ bnext.on_clicked(callback.next)
 bprev = Button(axprev, 'Previous')
 bprev.on_clicked(callback.prev)
 
-# pylab.scatter(x_vals, y_vals)
+axstart = plt.axes([0.70, 0.05, 0.1, 0.075])
+axstop = plt.axes([0.81, 0.05, 0.1, 0.075])
+axclear = plt.axes([0.90, 0.05, 0.1, 0.075])
+clearB = Button(axclear, 'Clear')
+clearB.on_clicked(clear)
+startB = Button(axstart, 'Start')
+startB.on_clicked(start)
+stopB = Button(axstop, 'Pause')
+stopB.on_clicked(stop)
 
-# pylab.show()
 plt.show()
