@@ -5,6 +5,8 @@ from matplotlib.ticker import LinearLocator, FormatStrFormatter
 import numpy as np
 from matplotlib.widgets import Button
 
+from CustomAnimation import CustomAnimation
+
 
 def custom_function(x_vals, y_vals):
     z_vals = list()
@@ -92,7 +94,7 @@ l, = ax.plot(x_vals, y_vals, z_vals, marker="o", markersize=9, linewidth=2)
 
 
 def animate(ite):
-    print(ite)
+    # print(ite)
     if ite >= len(y_vals):
         help_x.clear()
         help_y.clear()
@@ -124,11 +126,13 @@ def init():  # only required for blitting to give a clean slate.
     return l,
 
 
+# cik = CustomAnimation(x_vals, y_vals, z_vals)
+
+
 ani = animation.FuncAnimation(
     fig, animate, interval=450, repeat=True)
 
-
-# ax.plot(x_global, y_global, z_global, marker="*", markersize=12, linewidth=3)
+ax.plot(x_global, y_global, z_global, marker="*", markersize=12, linewidth=3)
 surf = ax.plot_surface(X, Y, R, color='r',
                        linewidth=0, antialiased=False)
 plt.show()
