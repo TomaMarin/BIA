@@ -1,6 +1,14 @@
 import numpy as np, random, operator, pandas as pd
 import matplotlib.pyplot as plt
 from operator import itemgetter
+from matplotlib import animation
+
+fig, ax = plt.subplots()
+l, = ax.plot([], [], marker="o")
+
+ax.plot()
+
+best_combinations = list()
 
 
 class Town:
@@ -53,10 +61,17 @@ def evaluate_elements(populations: list):
         populations[o][1] = calculate_fitness(populations[o][0])
     sorted_populations = sorted(populations, key=itemgetter(1))
     print(sorted_populations[0][1])
+    best_combinations.append(sorted_populations[0])
     return sorted_populations
 
 
 # def select_elements(actual_generation):
+
+def roulette_selection(populations: list):
+    worst_element_fitness = populations[len(populations) - 1][1]
+    for p in range(0, len(populations)):
+        print((populations[p][1] / worst_element_fitness))
+    print("end")
 
 
 def breed(other_element, elite):
@@ -78,63 +93,96 @@ def breed(other_element, elite):
     return child
 
 
-def mutate(element):
+def mutate(element, mutation_rate):
     size_of_element = len(element)
     position_of_swap = int(random.random() * size_of_element)
     second_position_of_swap = int(random.random() * size_of_element)
     # print(element)
 
-    tmp = element[position_of_swap]
-    element[position_of_swap] = element[second_position_of_swap]
-    element[second_position_of_swap] = tmp
+    if mutation_rate > random.random():
+        tmp = element[position_of_swap]
+        element[position_of_swap] = element[second_position_of_swap]
+        element[second_position_of_swap] = tmp
     return element
 
 
 def breed_population(actual_generation, size_of_pop):
     breeded_population = list()
     breeded_population.append(actual_generation[0][0])
-    for k in range(1, size_of_pop):
-        breeded_population.append(breed(actual_generation[k][0], actual_generation[0][0]))
+    for k in range(0, size_of_pop):
+        breeded_population.append(breed(actual_generation[1][0], actual_generation[0][0]))
     return breeded_population
 
 
-def mutate_population(breeded_population, size_of_pop):
+def mutate_population(breeded_population, size_of_pop, mutation_rate):
     mutated_population = [[0 for x in range(2)] for y in range(size_of_pop)]
     # mutated_population = list()
     mutated_population[0][0] = breeded_population[0]
     mutated_population[0][1] = calculate_fitness(breeded_population[0])
-    for l in range(1, size_of_pop):
-        mutated_population[l][0] = (mutate(breeded_population[l]))
+    for l in range(0, size_of_pop):
+        mutated_population[l][0] = (mutate(breeded_population[l], mutation_rate))
         mutated_population[l][1] = (calculate_fitness(breeded_population[l]))
     return mutated_population
 
 
-def create_next_generation(actual_generation, size_of_pop):
+def create_next_generation(actual_generation, size_of_pop, mutation_rate):
     new_actual_generation = evaluate_elements(actual_generation)
+    # roulette_selection(actual_generation)
     breeded_population = breed_population(new_actual_generation, size_of_pop)
-    mutated_population = mutate_population(breeded_population, size_of_pop)
+    mutated_population = mutate_population(breeded_population, size_of_pop, mutation_rate)
     return mutated_population
 
 
-def genetic_algorithm_loop(number_of_generations, number_of_towns, pop_size):
+def genetic_algorithm_loop(number_of_generations, number_of_towns, pop_size, mutation_rate):
     generated_towns = (generate_towns(number_of_towns))
     pop = create_generation(generated_towns, pop_size)
     for generation in range(0, number_of_generations):
-        pop = create_next_generation(pop, pop_size)
-
-
-def set_graph_vals(best_actual_element):
-    x_vals.clear()
-    y_vals.clear()
-    for it in best_actual_element:
-        x_vals.append(it.x)
-        y_vals.append(it.y)
+        pop = create_next_generation(pop, pop_size, mutation_rate)
 
 
 x_vals = list()
 y_vals = list()
 
-genetic_algorithm_loop(500, 25, 25)
+
+def animate(ite):
+    if ite > len(best_combinations):
+        ani.frame_seq = ani.new_frame_seq()
+        ite = 0
+    plt.title("fitness: " + str(best_combinations[ite][1]) + " iteration: " + str(ite))
+    x_vals.clear()
+    y_vals.clear()
+    best_actual_element = best_combinations[ite][0]
+    for it in best_actual_element:
+        x_vals.append(it.x)
+        y_vals.append(it.y)
+    x_vals.append(best_actual_element[0].x)
+    y_vals.append(best_actual_element[0].y)
+    l.set_xdata(x_vals)
+    l.set_ydata(y_vals)
+    plt.xticks(range(int(min(x_vals) - 2), int(max(x_vals) + 2)))
+    plt.yticks(range(int(min(y_vals) - 2), int(max(y_vals) + 2)))
+    plt.draw()
+    return l,
+
+
+#
+# def set_graph_vals(l, best_actual_element):
+#     x_vals.clear()
+#     y_vals.clear()
+#     for it in best_actual_element:
+#         x_vals.append(it.x)
+#         y_vals.append(it.y)
+#     l.set_xdata(x_vals)
+#     l.set_ydata(y_vals)
+#     plt.xticks(range(int(min(x_vals) - 2), int(max(x_vals) + 2)))
+#     plt.yticks(range(int(min(y_vals) - 2), int(max(y_vals) + 2)))
+#     plt.draw()
+#     # return l,
+
+
+genetic_algorithm_loop(50, 10, 10, 0.5)
+ani = animation.FuncAnimation(
+    fig, animate, interval=350, repeat=True)
 # for i in generated_towns:
 #     x_vals.append(i.x)
 #     print(i)
@@ -144,6 +192,5 @@ genetic_algorithm_loop(500, 25, 25)
 
 # actual_fitness = (calculate_fitness(population_zero))
 
-# fig, ax = plt.scatter(x_vals,y_vals)
-# l, = ax.plot(x_vals, y_vals, marker="o")
-# plt.show()
+
+plt.show()
