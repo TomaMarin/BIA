@@ -50,7 +50,7 @@ def create_generation(population_zero: list, size_of_pop):
     list_of_generation = [[0 for x in range(2)] for y in range(size_of_pop)]
     for j in range(0, size_of_pop):
         # list_of_generation.append(random.sample(population_zero, 10))
-        list_of_generation[j][0] = (random.sample(population_zero, size_of_pop))
+        list_of_generation[j][0] = (random.sample(population_zero, len(population_zero)))
         list_of_generation[j][1] = calculate_fitness(list_of_generation[j][0])
     list_of_generation = sorted(list_of_generation, key=itemgetter(1))
     return list_of_generation
@@ -60,7 +60,7 @@ def evaluate_elements(populations: list):
     for o in range(0, len(populations)):
         populations[o][1] = calculate_fitness(populations[o][0])
     sorted_populations = sorted(populations, key=itemgetter(1))
-    print(sorted_populations[0][1])
+    # print(sorted_populations[0][1])
     best_combinations.append(sorted_populations[0])
     return sorted_populations
 
@@ -68,28 +68,44 @@ def evaluate_elements(populations: list):
 # def select_elements(actual_generation):
 
 def roulette_selection(populations: list):
+    avg = 0
     worst_element_fitness = populations[len(populations) - 1][1]
     for p in range(0, len(populations)):
-        print((populations[p][1] / worst_element_fitness))
-    print("end")
+        avg += (1 - (populations[p][1] / worst_element_fitness))
+        # print(1 - (populations[p][1] / worst_element_fitness))
+    # print("end")
+    # print((avg / len(populations) - (1 - (populations[len(populations) - 1][1] / worst_element_fitness))))
+    random_el = populations[len(populations) - 5][0]
+    for v in range(1, len(populations)):
+        ran_number = random.random() * ((1 - (populations[0][1] / worst_element_fitness)) + (
+                    1 - (populations[len(populations) - 1][1] / worst_element_fitness)))
+        succes_per = (1 - (populations[v][1] / worst_element_fitness))
+        if succes_per > random.random():
+            random_el = populations[v][0]
+            break
+    return random_el
 
 
-def breed(other_element, elite):
+def breed(other_element, another_element):
     child = []
     child_p1 = []
     child_p2 = []
     other_element_gen = int(random.random() * len(other_element))
-    elite_gen = int(random.random() * len(elite))
+    another_element_gen = int(random.random() * len(another_element))
 
-    start_gene = min(other_element_gen, elite_gen)
-    end_gene = max(other_element_gen, elite_gen)
+    start_gene = min(other_element_gen, another_element_gen)
+    end_gene = max(other_element_gen, another_element_gen)
 
     for i in range(start_gene, end_gene):
         child_p1.append(other_element[i])
 
-    child_p2 = [item for item in elite if item not in child_p1]
+    child_p2 = [item for item in another_element if item not in child_p1]
 
     child = child_p1 + child_p2
+    reversered_twin = child_p2 + child_p1
+    if calculate_fitness(child) > calculate_fitness(reversered_twin):
+        return reversered_twin
+
     return child
 
 
@@ -106,19 +122,21 @@ def mutate(element, mutation_rate):
     return element
 
 
-def breed_population(actual_generation, size_of_pop):
+def breed_population(actual_generation, size_of_pop, elite_size):
     breeded_population = list()
-    breeded_population.append(actual_generation[0][0])
-    for k in range(0, size_of_pop):
-        breeded_population.append(breed(actual_generation[1][0], actual_generation[0][0]))
+    for el in range(0, elite_size):
+        breeded_population.append(actual_generation[el][0])
+    # breeded_population.append(actual_generation[1][0])
+    for k in range(elite_size, size_of_pop):
+        breeded_population.append(breed(roulette_selection(actual_generation), roulette_selection(actual_generation)))
     return breeded_population
 
 
 def mutate_population(breeded_population, size_of_pop, mutation_rate):
     mutated_population = [[0 for x in range(2)] for y in range(size_of_pop)]
     # mutated_population = list()
-    mutated_population[0][0] = breeded_population[0]
-    mutated_population[0][1] = calculate_fitness(breeded_population[0])
+    # mutated_population[0][0] = breeded_population[0]
+    # mutated_population[0][1] = calculate_fitness(breeded_population[0])
     for l in range(0, size_of_pop):
         mutated_population[l][0] = (mutate(breeded_population[l], mutation_rate))
         mutated_population[l][1] = (calculate_fitness(breeded_population[l]))
@@ -127,8 +145,7 @@ def mutate_population(breeded_population, size_of_pop, mutation_rate):
 
 def create_next_generation(actual_generation, size_of_pop, mutation_rate):
     new_actual_generation = evaluate_elements(actual_generation)
-    # roulette_selection(actual_generation)
-    breeded_population = breed_population(new_actual_generation, size_of_pop)
+    breeded_population = breed_population(new_actual_generation, size_of_pop, 1)
     mutated_population = mutate_population(breeded_population, size_of_pop, mutation_rate)
     return mutated_population
 
@@ -165,32 +182,10 @@ def animate(ite):
     return l,
 
 
-#
-# def set_graph_vals(l, best_actual_element):
-#     x_vals.clear()
-#     y_vals.clear()
-#     for it in best_actual_element:
-#         x_vals.append(it.x)
-#         y_vals.append(it.y)
-#     l.set_xdata(x_vals)
-#     l.set_ydata(y_vals)
-#     plt.xticks(range(int(min(x_vals) - 2), int(max(x_vals) + 2)))
-#     plt.yticks(range(int(min(y_vals) - 2), int(max(y_vals) + 2)))
-#     plt.draw()
-#     # return l,
+genetic_algorithm_loop(300, 20, 50, 0.25)
 
 
-genetic_algorithm_loop(50, 10, 10, 0.5)
 ani = animation.FuncAnimation(
-    fig, animate, interval=350, repeat=True)
-# for i in generated_towns:
-#     x_vals.append(i.x)
-#     print(i)
-#     y_vals.append(i.y)
+    fig, animate, interval=250, repeat=False)
 
-# actual_generation = create_generation(generated_towns)
-
-# actual_fitness = (calculate_fitness(population_zero))
-
-
-plt.show()
+# plt.show()
