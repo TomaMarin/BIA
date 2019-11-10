@@ -4,6 +4,7 @@ from operator import attrgetter
 from mpl_toolkits.mplot3d import Axes3D
 import copy
 import random
+from matplotlib import cm, animation
 
 
 def schwefel_function(x):
@@ -34,9 +35,7 @@ class Individual:
 x_vals = list()
 y_vals = list()
 z_vals = list()
-all_x_vals = list()
-all_y_vals = list()
-all_z_vals = list()
+
 x_leaders_vals = list()
 y_leaders_vals = list()
 z_leaders_vals = list()
@@ -68,13 +67,10 @@ def SOMA(D, number_of_migrations, pop_size, PRT, path_length):
         best_individuals_per_every_migration.append(current_pop[:])
         current_pop.append(leader)
         migration_number += 1
-
     for j in range(pop_size):
         x_vals.append(current_pop[j].parameters[0])
         y_vals.append(current_pop[j].parameters[1])
         z_vals.append(current_pop[j].function_value)
-
-        all_x_vals.append(x_vals)
 
 
 def init(D, pop_size):
@@ -124,17 +120,99 @@ def travel(D, PRT, path_length, individual: Individual, leader: Individual):
     return best_positions
 
 
-(SOMA(2, 30, 7, 0.2, 2))
+help_x = list()
+help_y = list()
+help_z = list()
+
+help_x_leader = list()
+help_y_leader = list()
+help_z_leader = list()
 fig = plt.figure()
 ax = fig.gca(projection='3d')
-# ax.scatter(x_leaders_vals, y_leaders_vals, z_leaders_vals, color='y', marker="x", linewidth=10)
-ax.scatter(x_vals, y_vals, z_vals, color='g', marker="x", linewidth=7)
+
+all_x_vals = np.zeros(len(best_individuals_per_every_migration))
+all_y_vals = np.zeros(len(best_individuals_per_every_migration))
+all_z_vals = np.zeros(len(best_individuals_per_every_migration))
+l, = ax.plot(x_leaders_vals, y_leaders_vals, z_leaders_vals, linestyle="", color='y', markersize=20, marker="x",
+             linewidth=20)
+# for i in range(len(best_individuals_per_every_migration)):
+# all_x_vals[i] = best_individuals_per_every_migration[]
+v, = ax.plot(all_x_vals, all_y_vals, all_z_vals, linestyle="", color='r', markersize=12, marker="o", linewidth=12)
+
+
+def animate(ite):
+    # print(ite," leader")
+    if ite >= len(leader_per_every_migration):
+        help_x_leader.clear()
+        help_y_leader.clear()
+        help_z_leader.clear()
+        ani.frame_seq = ani.new_frame_seq()
+
+    else:
+        help_x_leader.clear()
+        help_y_leader.clear()
+        help_z_leader.clear()
+        ydata = y_leaders_vals[ite]
+        xdata = x_leaders_vals[ite]
+        zdata = z_leaders_vals[ite]
+        help_x_leader.append(xdata)
+        help_y_leader.append(ydata)
+        help_z_leader.append(zdata)
+    l.set_data_3d(help_x_leader, help_y_leader, help_z_leader)
+    return l,
+
+
+def animate_vals(ite):
+    # print(ite," vals")
+    if ite >= len(best_individuals_per_every_migration):
+        help_x.clear()
+        help_y.clear()
+        help_z.clear()
+        ani_vals.frame_seq = ani_vals.new_frame_seq()
+    else:
+        help_x.clear()
+        help_y.clear()
+        help_z.clear()
+        for i in best_individuals_per_every_migration[ite]:
+            help_x.append(i.parameters[0])
+            help_y.append(i.parameters[1])
+            help_z.append(i.function_value)
+        # ydata = y_leaders_vals[ite]
+        # xdata = x_leaders_vals[ite]
+        # zdata = z_leaders_vals[ite]
+        # help_x.append(xdata)
+        # help_y.append(ydata)
+        # help_z.append(zdata)
+    v.set_data_3d(help_x, help_y, help_z)
+    return v,
+
+
+def init_g():  # only required for blitting to give a clean slate.
+    help_x.clear()
+    help_y.clear()
+    help_z.clear()
+    ydata = y_vals[0]
+    xdata = x_vals[0]
+    zdata = z_vals[0]
+    help_x.append(xdata)
+    help_y.append(ydata)
+    help_z.append(zdata)
+    l.set_data_3d(help_x, help_y, help_z)
+    return l,
+
+
+(SOMA(2, 25, 10, 0.2, 2))
+
+# ax.scatter(x_vals, y_vals, z_vals, color='g', marker="x", linewidth=7)
 X = np.arange(-500, 500, 2)
 Y = np.arange(-500, 500, 2)
 X, Y = np.meshgrid(X, Y)
 # R = ((X - 3) ** 2 + (Y - 3) ** 2)
 arr = [X, Y]
 R = (schwefel_function(arr))
+ani_vals = animation.FuncAnimation(fig, animate_vals, interval=850, repeat=False)
+ani = animation.FuncAnimation(
+    fig, animate, interval=850, repeat=False)
 surf = ax.plot_surface(X, Y, R, color='b',
-                       linewidth=0, antialiased=True, alpha=0.3)
+                       linewidth=0, antialiased=True, alpha=0.1)
 plt.show()
