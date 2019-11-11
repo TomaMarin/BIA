@@ -52,7 +52,7 @@ def SOMA(D, number_of_migrations, pop_size, PRT, path_length):
     current_pop = init(D, pop_size)
     migration_number = 0
     best_individuals_per_every_migration.append(current_pop[:])
-    centroids = setKMeansForFirstTime(4, current_pop)
+    centroids = setKMeansForFirstTime(3, current_pop)
     for fl in centroids:
         x_leaders_vals.append(fl.parameters[0])
         y_leaders_vals.append(fl.parameters[1])
@@ -170,18 +170,18 @@ def setCentroidsForKmeans(centroids: list, vals: list):
 #         return Math.sqrt((Math.pow(x1 - y1, 2)) + (Math.pow(x2 - y2, 2)) + (Math.pow(x3 - y3, 2)) + (Math.pow(x4 - y4, 2)));
 #     }
 
-def calcEuclidanDistance(x1, x2, x3, y1, y2, y3, ):
-    return np.sqrt((np.power(x1 - y1, 2)) + (np.power(x2 - y2, 2)) + (np.power(x3 - y3, 2)))
+def calcEuclidanDistance(x1, x2, y1, y2, ):
+    return np.sqrt((np.power(x1 - y1, 2)) + (np.power(x2 - y2, 2)))
 
 
 def find_centroid_for_item(centroids: list, item: Individual):
     best_centroid_distance = 1000.0
     best_centroid = centroids[0]
     for i in centroids:
-        if (calcEuclidanDistance(item.parameters[0], item.parameters[1], item.function_value, i.parameters[0],
-                                 i.parameters[1], i.function_value) < best_centroid_distance):
-            best_centroid_distance = calcEuclidanDistance(item.parameters[0], item.parameters[1], item.function_value,
-                                                          i.parameters[0], i.parameters[1], i.function_value)
+        if (calcEuclidanDistance(item.parameters[0], item.parameters[1], i.parameters[0],
+                                 i.parameters[1]) < best_centroid_distance):
+            best_centroid_distance = calcEuclidanDistance(item.parameters[0], item.parameters[1],
+                                                          i.parameters[0], i.parameters[1])
             best_centroid = i
 
     return best_centroid
@@ -201,7 +201,7 @@ all_x_vals = list()
 all_y_vals = list()
 # all_z_vals = np.zeros(len(best_individuals_per_every_migration))
 all_z_vals = list()
-l, = ax.plot(x_leaders_vals, y_leaders_vals, z_leaders_vals, linestyle="", color='y', markersize=20, marker="x",
+l, = ax.plot(x_leaders_vals, y_leaders_vals, z_leaders_vals, linestyle="", color='y', markersize=20, marker="X",
              linewidth=20)
 # for i in range(len(best_individuals_per_every_migration)):
 # all_x_vals[i] = best_individuals_per_every_migration[]
