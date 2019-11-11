@@ -48,13 +48,17 @@ def SOMA(D, number_of_migrations, pop_size, PRT, path_length):
     current_pop = init(D, pop_size)
     migration_number = 0
     best_individuals_per_every_migration.append(current_pop[:])
+    for i in current_pop:
+        all_x_vals.append(i.parameters[0])
+        all_y_vals.append(i.parameters[1])
+        all_z_vals.append(i.function_value)
     while migration_number < number_of_migrations:
         leader = min(current_pop, key=attrgetter('function_value'))
         leader_per_every_migration.append(leader)
         x_leaders_vals.append(leader.parameters[0])
         y_leaders_vals.append(leader.parameters[1])
         z_leaders_vals.append(leader.function_value)
-        print("leader f val : ", leader.function_value)
+        print("leader f val : ", leader.function_value, " for migration: ", migration_number)
         traveling_pop = list()
         traveling_pop.clear()
         for i in range(pop_size):
@@ -130,10 +134,10 @@ help_z_leader = list()
 fig = plt.figure()
 ax = fig.gca(projection='3d')
 
-all_x_vals = np.zeros(len(best_individuals_per_every_migration))
-all_y_vals = np.zeros(len(best_individuals_per_every_migration))
-all_z_vals = np.zeros(len(best_individuals_per_every_migration))
-l, = ax.plot(x_leaders_vals, y_leaders_vals, z_leaders_vals, linestyle="", color='y', markersize=20, marker="x",
+all_x_vals = list()
+all_y_vals = list()
+all_z_vals = list()
+l, = ax.plot(x_leaders_vals, y_leaders_vals, z_leaders_vals, linestyle="", color='y', markersize=20, marker="X",
              linewidth=20)
 # for i in range(len(best_individuals_per_every_migration)):
 # all_x_vals[i] = best_individuals_per_every_migration[]
@@ -141,7 +145,8 @@ v, = ax.plot(all_x_vals, all_y_vals, all_z_vals, linestyle="", color='r', marker
 
 
 def animate(ite):
-    # print(ite," leader")
+    # print(ite, " leader")
+    plt.title("Migrace  number: " + str(ite))
     if ite >= len(leader_per_every_migration):
         help_x_leader.clear()
         help_y_leader.clear()
@@ -163,7 +168,7 @@ def animate(ite):
 
 
 def animate_vals(ite):
-    # print(ite," vals")
+    # print(ite, " vals")
     if ite >= len(best_individuals_per_every_migration):
         help_x.clear()
         help_y.clear()
@@ -187,32 +192,60 @@ def animate_vals(ite):
     return v,
 
 
-def init_g():  # only required for blitting to give a clean slate.
+def init_vals():  # only required for blitting to give a clean slate.
     help_x.clear()
     help_y.clear()
     help_z.clear()
-    ydata = y_vals[0]
-    xdata = x_vals[0]
-    zdata = z_vals[0]
-    help_x.append(xdata)
-    help_y.append(ydata)
-    help_z.append(zdata)
+    for i in all_y_vals:
+        help_x.append(i)
+    for i in all_y_vals:
+        help_y.append(i)
+    for i in all_y_vals:
+        help_z.append(i)
     l.set_data_3d(help_x, help_y, help_z)
     return l,
 
 
-(SOMA(2, 25, 10, 0.2, 2))
+def init_vals():  # only required for blitting to give a clean slate.
+    help_x.clear()
+    help_y.clear()
+    help_z.clear()
+    for i in all_y_vals:
+        help_x.append(i)
+    for i in all_y_vals:
+        help_y.append(i)
+    for i in all_y_vals:
+        help_z.append(i)
+    l.set_data_3d(help_x, help_y, help_z)
+    return l,
+
+
+def init_leader():  # only required for blitting to give a clean slate.
+    help_x_leader.clear()
+    help_y_leader.clear()
+    help_z_leader.clear()
+    ydata = y_leaders_vals[0]
+    xdata = x_leaders_vals[0]
+    zdata = z_leaders_vals[0]
+    help_x_leader.append(xdata)
+    help_y_leader.append(ydata)
+    help_z_leader.append(zdata)
+    l.set_data_3d(help_x, help_y, help_z)
+    return l,
+
+
+(SOMA(2, 30, 8, 0.1, 2))
 
 # ax.scatter(x_vals, y_vals, z_vals, color='g', marker="x", linewidth=7)
-X = np.arange(-500, 500, 2)
-Y = np.arange(-500, 500, 2)
+X = np.arange(-500, 500, 5)
+Y = np.arange(-500, 500, 5)
 X, Y = np.meshgrid(X, Y)
 # R = ((X - 3) ** 2 + (Y - 3) ** 2)
 arr = [X, Y]
 R = (schwefel_function(arr))
-ani_vals = animation.FuncAnimation(fig, animate_vals, interval=850, repeat=False)
+ani_vals = animation.FuncAnimation(fig, animate_vals, interval=700, init_func=init_vals,  repeat=True)
 ani = animation.FuncAnimation(
-    fig, animate, interval=850, repeat=False)
+    fig, animate, init_func=init_leader,  interval=775, repeat=True)
 surf = ax.plot_surface(X, Y, R, color='b',
                        linewidth=0, antialiased=True, alpha=0.1)
 plt.show()
