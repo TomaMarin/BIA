@@ -16,9 +16,6 @@ def schwefel_function(x):
     return total_f_val
 
 
-0
-
-
 def custom_function(x):
     x1 = x[0]
     x2 = x[1]
@@ -157,9 +154,9 @@ def setCentroidsForKmeans(centroids: list, vals: list):
                 new_centroids[i].parameters[1] = new_centroids[i].parameters[1] + j.parameters[1]
         for n in range(len(new_centroids[i].parameters)):
             if new_centroids[i].parameters[n] / number_of_items > 500:
-                new_centroids[i].parameters[n] = int(random.random() * 500 - 1)
+                new_centroids[i].parameters[n] = 500 - int(random.random() * 40 - 1)
             if new_centroids[i].parameters[n] / number_of_items < -500:
-                new_centroids[i].parameters[n] = int(random.random() * -500 - 1)
+                new_centroids[i].parameters[n] = -500 - int(random.random() * -40 - 1)
             else:
                 new_centroids[i].parameters[n] = new_centroids[i].parameters[n] / number_of_items
 
