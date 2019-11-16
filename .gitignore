@@ -30,3 +30,21 @@ Py/venv/share/jupyter/nbextensions/jupyter-js-widgets/extension.js.map
 Py/venv/share/jupyter/kernels/python3/logo-64x64.png
 
 Py/venv/pyvenv.cfg
+
+*.pth
+
+Py_38/Lib/site-packages/pip-19.0.3-py3.8.egg/EGG-INFO/dependency_links.txt
+
+Py_38/Lib/site-packages/pip-19.0.3-py3.8.egg/EGG-INFO/entry_points.txt
+
+Py_38/Lib/site-packages/pip-19.0.3-py3.8.egg/EGG-INFO/not-zip-safe
+
+Py_38/Lib/site-packages/pip-19.0.3-py3.8.egg/pip/__init__.py
+
+Py_38/Lib/site-packages/pip-19.0.3-py3.8.egg/EGG-INFO/
+
+Py_38/Lib/site-packages/pip-19.0.3-py3.8.egg/pip/
+
+Py_38/Lib/site-packages/
+
+Py_38/
