@@ -5,6 +5,12 @@ import numpy as np
 from mpl_toolkits.mplot3d import Axes3D
 
 
+# def griewangk_fuction(x):
+#     um(x(i)^2/4000)-prod(cos(x(i)/sqrt(i)))+1, i=1:n
+# for i in x:
+#     (np.power(i,2)/4000) -
+
+
 def custom_function(x):
     x1 = x[0]
     x2 = x[1]
@@ -104,7 +110,6 @@ R = ((X - 3) ** 2 + (Y - 3) ** 2)
 
 xdata = [0, 1, 2, 3, 4, 5, 6, 7]
 zdata = custom_function(xdata)
-
 
 help_x = list()
 help_y = list()
