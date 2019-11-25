@@ -20,7 +20,7 @@ def calculate_distance_between_all_towns(towns):
     for i in range(len(towns)):
         for j in range(len(towns)):
             if i != j:
-                distance_table[i][j] = float(calculate_distance_between_towns(towns[i], towns[j]))
+                distance_table[i][j] = (calculate_distance_between_towns(towns[i], towns[j]))
     return distance_table
 
 
@@ -34,9 +34,9 @@ def calculate_visibility_matrix_between_all_towns(towns):
 
 
 def calculate_distance_between_towns(actual_town, town):
-    x_distance = abs(actual_town.x - town.x)
-    y_distance = abs(actual_town.y - town.y)
-    return np.sqrt((pow(x_distance, 2) + pow(y_distance, 2)))
+    # x_distance =
+    # y_distance =
+    return np.sqrt((pow(abs(actual_town.x - town.x), 2) + pow(abs(actual_town.y - town.y), 2)))
 
 
 def calculate_trans_prob(current_town_index, next_town_index, alpha, beta, distance_table, pheromone_table,
@@ -50,11 +50,19 @@ def calculate_trans_prob(current_town_index, next_town_index, alpha, beta, dista
     return numerator / denominator
 
 
-def calculate_tau(actual_city, visit_city, p, pheromone_table, actual_ant):
-    first_half = (1 - p) * pheromone_table[actual_city.index][visit_city.index]
-    second_half = 1 / actual_ant.path
+def calculate_tau(actual_city, visit_city, pheromone_table, actual_ant):
+    first_half = pheromone_table[actual_city.index][visit_city.index]  # FIXME is that correct?
+    second_half = 1.0 / actual_ant.path
     pheromone_table[actual_city.index][visit_city.index] = first_half + second_half
     return first_half + second_half
+
+
+def evaporate(pheromone_table, p):
+    evaporated_pheromone_table = copy.deepcopy(pheromone_table)
+    for i in range(len(evaporated_pheromone_table)):
+        for j in range(len(evaporated_pheromone_table)):
+            evaporated_pheromone_table[i][j] = (1 - p) * evaporated_pheromone_table[i][j]
+    return evaporated_pheromone_table
 
 
 class Town:
@@ -92,7 +100,7 @@ class Ant:
                     calculate_trans_prob(self.current_town.index, i.index, alpha, beta, distance_table, pheromone_table,
                                          self.unvisited_towns))
                 one_step_town.append(i)
-            sums = sum(one_step_prob)
+            # sums = sum(one_step_prob)
             selection = np.random.choice(one_step_town, 1, p=one_step_prob)
             self.path += calculate_distance_between_towns(self.current_town, selection[0])
             self.visited_towns.append(selection[0])
@@ -114,7 +122,7 @@ def read_file_dataset(file):
 
 def generate_towns():
     generated_towns = list()
-    read_file_dataset("towns_locations_test_small")
+    read_file_dataset("towns_locations")
     for i in range(len(towns)):
         town_string = towns[i].split()
         generated_town = Town(int(town_string[1]), int(town_string[2]), i)
@@ -124,9 +132,11 @@ def generate_towns():
 
 def aco(number_of_iterations, alpha, beta, distance_table, pheromone_table, towns, colony_size, number_of_top_ants):
     colonies = list()
+    best_ant = Ant(1500, towns[0])
+    best_ant.path = 6000
     for j in range(number_of_iterations):
         new_colony = list()
-        starting_town =towns[np.random.randint(0, len(towns))]
+        starting_town = towns[np.random.randint(0, len(towns))]
         for k in range(colony_size):
             new_ant = Ant(k, starting_town)
             new_ant.visited_towns.append(new_ant.current_town)
@@ -135,14 +145,20 @@ def aco(number_of_iterations, alpha, beta, distance_table, pheromone_table, town
         colony_to_append = copy.deepcopy(new_colony)
         colonies.append(colony_to_append)
         new_colony.clear()
+
         colony_to_append = sorted(colony_to_append, key=attrgetter('path'))
+        pheromone_table = evaporate(pheromone_table, 0.1)
         for i in range(number_of_top_ants):
             for k in range(len(colony_to_append[i].visited_towns)):
-                if k + 1 != len(colony_to_append[i].visited_towns):
-                    calculate_tau(colony_to_append[i].visited_towns[k], colony_to_append[i].visited_towns[k + 1], 0.5,
+                if k + 1 < len(colony_to_append[i].visited_towns):
+                    calculate_tau(colony_to_append[i].visited_towns[k], colony_to_append[i].visited_towns[k + 1],
                                   pheromone_table, colony_to_append[i])
-        print("ite: " + str(j) + " best ant " + str(min(colony_to_append, key=attrgetter('path'))))
+        best_iteration_ant = min(colony_to_append, key=attrgetter('path'))
+        if best_iteration_ant.path < best_ant.path:
+            best_ant = best_iteration_ant
+        print("ite: " + str(j) + " best ant " + str(best_iteration_ant))
         colony_to_append.clear()
+    print(str(best_ant))
     return colonies
 
 
@@ -151,11 +167,11 @@ x_axis = list()
 y_axis = list()
 
 alpha = 1
-beta = 2
+beta = 3
 colony_size = 10
 number_of_iterations = 50
 first_gen = generate_towns()
-best_ants_number = 5
+best_ants_number = 3
 distance_table = calculate_visibility_matrix_between_all_towns(first_gen)
 pheromone_table = init_pheromone_table(len(first_gen))
 
