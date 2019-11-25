@@ -1,12 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from operator import attrgetter
-from mpl_toolkits.mplot3d import Axes3D
 import copy
-import random
-from matplotlib import cm, animation
-import math
 from multiprocessing import Pool
+from timeit import default_timer as timer
 
 towns = list()
 pheromone_table = np.ones((len(towns), len(towns)))
@@ -114,13 +111,16 @@ class Ant:
             act_denominator = calculate_denominator_of_trans_prob_equation(self.current_town.index, alpha, beta,
                                                                            distance_table, pheromone_table,
                                                                            self.unvisited_towns)
-            for i in self.unvisited_towns:
-                one_step_prob.append(
-                    calculate_trans_prob(self.current_town.index, i.index, alpha, beta, distance_table, pheromone_table,
-                                         act_denominator))
-                one_step_town.append(i)
+            one_step_prob = [
+                calculate_trans_prob(self.current_town.index, i.index, alpha, beta, distance_table, pheromone_table,
+                                     act_denominator) for i in self.unvisited_towns]
+            # for i in self.unvisited_towns:
+            #     one_step_prob.append(
+            #         calculate_trans_prob(self.current_town.index, i.index, alpha, beta, distance_table, pheromone_table,
+            #                              act_denominator))
+            # one_step_town.append(i)
             # sums = sum(one_step_prob)
-            selection = np.random.choice(one_step_town, 1, p=one_step_prob)
+            selection = np.random.choice(self.unvisited_towns, 1, p=one_step_prob)
             self.path += calculate_distance_between_towns(self.current_town, selection[0])
             self.visited_towns.append(selection[0])
             self.unvisited_towns.remove(selection[0])
@@ -176,19 +176,21 @@ def aco(number_of_iterations, alpha, beta, distance_table, pheromone_table, town
         new_colony.clear()
 
         colony_to_append = sorted(colony_to_append, key=attrgetter('path'))
-        pheromone_table = evaporate(pheromone_table, 0.1)
+        pheromone_table = evaporate(pheromone_table, 0.2)
         for i in range(number_of_top_ants):
             for k in range(len(colony_to_append[i].visited_towns)):
                 if k + 1 < len(colony_to_append[i].visited_towns):
                     calculate_tau(colony_to_append[i].visited_towns[k], colony_to_append[i].visited_towns[k + 1],
                                   pheromone_table, colony_to_append[i])
         best_iteration_ant = min(colony_to_append, key=attrgetter('path'))
-        if best_iteration_ant.path < best_ant.path:
+
+        if best_iteration_ant.path < best_ant.path and j > int(number_of_iterations / 4):
             best_ant = best_iteration_ant
             for k in range(len(best_ant.visited_towns)):
                 if k + 1 < len(best_ant.visited_towns):
                     calculate_tau(best_ant.visited_towns[k], best_ant.visited_towns[k + 1],
                                   pheromone_table, best_ant)
+
         print("ite: " + str(j) + " best ant " + str(best_iteration_ant))
         colony_to_append.clear()
     the_best_ants.append(best_ant)
@@ -200,18 +202,20 @@ print("help")
 x_axis = list()
 y_axis = list()
 
-alpha = 1.5
-beta = 3
-colony_size = 10
-number_of_iterations = 150
+alpha = 1
+beta = 3.5
+colony_size = 12
+number_of_iterations = 120
 first_gen = generate_towns()
 best_ants_number = 4
 distance_table = calculate_visibility_matrix_between_all_towns(first_gen)
 pheromone_table = init_pheromone_table(len(first_gen))
+start = timer()
 
-print("cpu  c :", mp.cpu_count())
 ac_result = aco(number_of_iterations, alpha, beta, distance_table, pheromone_table, first_gen, colony_size,
                 best_ants_number)
+end = timer()
+print("time :", end - start)
 for i in the_best_ants[0].visited_towns:
     x_axis.append(i.x)
     y_axis.append(i.y)
