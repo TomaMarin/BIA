@@ -105,14 +105,14 @@ def pso(dimension, max_velocity, pop_size, iterations, c1, c2):
         y_gBests_vals.append(gBest.parameters[1])
         z_gBests_vals.append(gBest.function_value)
         for j in range(len(current_pop)):
-            if current_pop[j] != gBest:
+            # if current_pop[j] != gBest:
                 new_velocity = calculate_velocity(current_pop[j], gBest, c1, c2, 0.5)
                 new_params = move(current_pop[j].parameters, new_velocity)
                 new_pbest = set_p_best(current_pop[j].pBest, new_params)
                 new_particle = Particle(new_params, new_pbest, new_velocity, schwefel_function(new_params))
                 migrace_pop.append(new_particle)
         best_individuals_per_every_migration.append(current_pop[:])
-        migrace_pop.append(gBest)
+        # migrace_pop.append(gBest)
         current_pop = copy.deepcopy(migrace_pop)
         for j in range(pop_size):
             x_vals.append(current_pop[j].parameters[0])
@@ -210,7 +210,7 @@ def init_vals():  # only required for blitting to give a clean slate.
     return v,
 
 
-pso(2, 2, 20, 30, 0.5, 0.9)
+pso(2, 2, 20, 20, 2, 2)
 
 X = np.arange(-500, 500, 5)
 Y = np.arange(-500, 500, 5)
@@ -218,7 +218,7 @@ X, Y = np.meshgrid(X, Y)
 # R = ((X - 3) ** 2 + (Y - 3) ** 2)
 arr = [X, Y]
 R = (schwefel_function(arr))
-ani_vals = animation.FuncAnimation(fig, animate_vals, interval=1000, init_func=init_vals,  repeat=True)
+ani_vals = animation.FuncAnimation(fig, animate_vals, interval=700, init_func=init_vals,  repeat=True)
 # ani = animation.FuncAnimation(
 #     fig, animate, init_func=init_leader, interval=775, repeat=True)
 surf = ax.plot_surface(X, Y, R, color='b',
