@@ -39,6 +39,8 @@ from itertools import starmap
 import numpy
 
 d = 5
+
+
 def square(x):
     return x * x
 
@@ -51,15 +53,38 @@ for i in range(5):
 #     p = Pool(4)
 #     result = p.starmap(square,  d_list[0])
 #     print(result)
-result = map(square,d_list)
+result = map(square, d_list)
+
+
 # print(result)
 
 def schwefel_function(x):
     total_f_val = 0.0
     for i in x:
         # f7(x)=sum(-x(i)·sin(sqrt(abs(x(i))))), i=1:n; -500<=x(i)<=500.
-        total_f_val += -i * np.sin(np.sqrt(np.abs(i)))
+        total_f_val += i * np.sin(np.sqrt(np.abs(i)))
     return total_f_val
 
 
-print(schwefel_function([360,425]))
+def schwefel_function2(x):
+    total_f_val = 0.0
+    for i in x:
+        # f7(x)=sum(-x(i)·sin(sqrt(abs(x(i))))), i=1:n; -500<=x(i)<=500.
+        total_f_val += i * np.sin(np.sqrt(np.abs(i)))
+    return 418.9829 * 2 - total_f_val
+
+
+def schaffer_n2(x):
+    x1 = x[0]
+    x2 = x[1]
+    poweer = (pow(x1, 2) - pow(x2, 2))
+    poweer2 = (pow(x1, 2) + pow(x2, 2))
+    result = 0.5 + ((pow(np.sin(poweer), 2) - 0.5)
+                    / (pow((1 + 0.001 * (poweer2)), 2))
+                    )
+    return result
+
+
+print(schwefel_function2([404, -315]))
+print(schaffer_n2([2.35, 4.3]))
+print(schaffer_n2([2.12304, 4.2047]))
