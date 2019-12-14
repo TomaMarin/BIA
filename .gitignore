@@ -48,3 +48,11 @@ Py_38/Lib/site-packages/pip-19.0.3-py3.8.egg/pip/
 Py_38/Lib/site-packages/
 
 Py_38/
+
+Py_37/Lib/site-packages/cycler-0.10.0.dist-info/
+
+Py_37/Lib/site-packages/
+
+*.cfg
+
+Py_37/Scripts/

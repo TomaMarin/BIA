@@ -1,0 +1,72 @@
+class Multi:
+    def __init__(self, x):
+        self.func1 = lambda x: -x ** 2
+        self.func2 = lambda x: -(x - 2) ** 2
+        self.x = x
+        self.f1 = self.func1(self.x)
+        self.f2 = self.func2(self.x)
+        self.s0 = []
+        self.n0 = 0
+        self.rank = 0
+
+
+def multiobjective(population_count, dimension=2):
+    population = []
+    population_count = 6
+    # for i in range(0, population_count):
+    for i in [-2, -1, 0, 2, 4, 1]:
+        # curr = Multi(random.randint(-10,10))
+        curr = Multi(i)
+        population.append(curr)
+
+    all_qs = []
+
+    for i in range(0, population_count):
+        curr = population[i]
+        for j in range(0, population_count):
+            comparing = population[j]
+            if i == j:
+                continue
+            if curr.f1 > comparing.f1 and curr.f2 == comparing.f2:
+                curr.s0.append(j)
+            elif curr.f1 == comparing.f1 and curr.f2 > comparing.f2:
+                curr.s0.append(j)
+            elif (curr.f1 > comparing.f1 and curr.f2 < comparing.f2) or (
+                    curr.f1 < comparing.f1 and curr.f2 > comparing.f2):
+                continue
+            elif curr.f1 > comparing.f1 and curr.f2 > comparing.f2:
+                curr.s0.append(j)
+            else:
+                curr.n0 += 1
+
+    new_q = []
+    for i in range(0, population_count):
+        curr = population[i]
+        if curr.n0 == 0:
+            curr.rank = 1
+            new_q.append(i)
+
+    all_qs.append(new_q)
+
+    front = new_q[:]
+    i = 1
+    while front != []:
+        new_q = []
+        for p in front:
+            for q_index in population[p].s0:
+                q = population[q_index]
+                q.n0 -= 1
+                if q.n0 == 0:
+                    q.rank = i + 1
+                    new_q.append(q_index)
+        i += 1
+        front = new_q[:]
+        all_qs.append(new_q[:])
+
+    print([x.x for x in population])
+    print([x.f1 for x in population])
+    print([x.f2 for x in population])
+    print(all_qs)
+
+
+multiobjective(10, 2)

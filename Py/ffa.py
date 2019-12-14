@@ -71,6 +71,7 @@ def movement_of_ff(brighter_ff: FireFly, dimmer_ff: FireFly, alpha, beta):
     for i in range(len(new_ff_w_params.parameters)):
         new_ff_w_params.parameters[i] = new_ff_w_params.parameters[i] + calc_attractiveness(r, beta) * (
                 brighter_ff.parameters[i] - new_ff_w_params.parameters[i]) + alpha * (random.random() - 0.5)
+
         if new_ff_w_params.parameters[i] > 100:
             new_ff_w_params.parameters[i] = 100 - random.randint(5, 15)
         elif new_ff_w_params.parameters[i] < -100:
@@ -83,6 +84,7 @@ def movement_of_best_ff(best_ff: FireFly, alpha):
     new_params_w_ff = copy.deepcopy(best_ff)
     for i in range(len(new_params_w_ff.parameters)):
         new_params_w_ff.parameters[i] = new_params_w_ff.parameters[i] + alpha * (random.random() - 0.5)
+
         if new_params_w_ff.parameters[i] > 100:
             new_params_w_ff.parameters[i] = 100 - random.randint(5, 15)
         elif new_params_w_ff.parameters[i] < -100:

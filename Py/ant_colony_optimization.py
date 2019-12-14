@@ -104,7 +104,6 @@ class Ant:
         self.unvisited_towns = towns[:]
         self.unvisited_towns.remove(self.current_town)
         first_town = self.current_town
-        # while len(self.unvisited_towns) != 0:
         one_step_prob = []
         one_step_town = []
         while len(self.unvisited_towns) != 0:
@@ -114,12 +113,6 @@ class Ant:
             one_step_prob = [
                 calculate_trans_prob(self.current_town.index, i.index, alpha, beta, distance_table, pheromone_table,
                                      act_denominator) for i in self.unvisited_towns]
-            # for i in self.unvisited_towns:
-            #     one_step_prob.append(
-            #         calculate_trans_prob(self.current_town.index, i.index, alpha, beta, distance_table, pheromone_table,
-            #                              act_denominator))
-            # one_step_town.append(i)
-            # sums = sum(one_step_prob)
             selection = np.random.choice(self.unvisited_towns, 1, p=one_step_prob)
             self.path += calculate_distance_between_towns(self.current_town, selection[0])
             self.visited_towns.append(selection[0])
@@ -176,7 +169,7 @@ def aco(number_of_iterations, alpha, beta, distance_table, pheromone_table, town
         new_colony.clear()
 
         colony_to_append = sorted(colony_to_append, key=attrgetter('path'))
-        pheromone_table = evaporate(pheromone_table, 0.2)
+        pheromone_table = evaporate(pheromone_table, 0.1)
         for i in range(number_of_top_ants):
             for k in range(len(colony_to_append[i].visited_towns)):
                 if k + 1 < len(colony_to_append[i].visited_towns):
@@ -184,7 +177,7 @@ def aco(number_of_iterations, alpha, beta, distance_table, pheromone_table, town
                                   pheromone_table, colony_to_append[i])
         best_iteration_ant = min(colony_to_append, key=attrgetter('path'))
 
-        if best_iteration_ant.path < best_ant.path and j > int(number_of_iterations / 4):
+        if best_iteration_ant.path < best_ant.path and j > int(number_of_iterations / 5):
             best_ant = best_iteration_ant
             for k in range(len(best_ant.visited_towns)):
                 if k + 1 < len(best_ant.visited_towns):
@@ -202,12 +195,12 @@ print("help")
 x_axis = list()
 y_axis = list()
 
-alpha = 1
-beta = 3.5
-colony_size = 12
-number_of_iterations = 120
+alpha = 1.1
+beta = 4.8
+colony_size = 20
+number_of_iterations = 300
 first_gen = generate_towns()
-best_ants_number = 4
+best_ants_number = 20
 distance_table = calculate_visibility_matrix_between_all_towns(first_gen)
 pheromone_table = init_pheromone_table(len(first_gen))
 start = timer()
